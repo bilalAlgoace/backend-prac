@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+// routes import
+import userRouter from "./routes/user.routes.js";
 
 const app = express();
 
@@ -17,17 +19,15 @@ app.use(express.static("public"));
 app.use(cookieParser());
 
 
-// routes import
-import userRouter from "./routes/user.routes.js";
 
 
 // routes declaration
 
 app.use("/api/v1/users", userRouter);
 
-app.get("/", (req, res) => {
+app.get("/", (req, res) => {  
   res.send({
-    message: "Hello world"
+    message: "Hello world from Algoace Udaid."
   });
 })
 

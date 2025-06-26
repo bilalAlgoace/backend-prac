@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import jwt, { Secret } from "jsonwebtoken";
+import jwt, { Secret, SignOptions  } from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { JwtDuration } from "../types/types";
 
 const userSchema = new Schema({
   username: {
@@ -64,30 +65,56 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
 }
 
 userSchema.methods.generateAccessToken = function () {
-  return jwt.sign(
-    {
-      _id: this._id,
-      email: this.email,
-      username: this.username,
-      fullName: this.fullName
-    },
-    process.env.ACCESS_TOKEN_SECRET!,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY
-    }
-  );
+  const secret: Secret = process.env.ACCESS_TOKEN_SECRET as string;
+  const expiry = (process.env.ACCESS_TOKEN_EXPIRY as JwtDuration) ?? '1d';
+
+  const payload = {
+    _id: this._id,
+    email: this.email,
+    username: this.username,
+    fullName: this.fullName,
+  };
+
+  const options: SignOptions = {
+    expiresIn: expiry,
+  };
+
+  return jwt.sign(payload, secret, options);
+  
 }
 
 userSchema.methods.generateRefreshToken = function () {
-  return jwt.sign(
-    {
-      _id: this._id,
-    },
-    process.env.REFRESH_TOKEN_SECRET!,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY
-    }
-  );
+  const secret: Secret = process.env.REFRESH_TOKEN_SECRET as string;
+  const expiry = (process.env.REFRESH_TOKEN_EXPIRY as JwtDuration) ?? '10d';
+
+  const payload = {
+    _id: this._id,
+  };
+
+  const options: SignOptions = {
+    expiresIn: expiry,
+  };
+
+  return jwt.sign(payload, secret, options);
 }
 
 export const User = mongoose.model("User", userSchema);
+
+// const secret = process.env.ACCESS_TOKEN_SECRET;
+//   const expiry = process.env.ACCESS_TOKEN_EXPIRY;
+
+//   if (!secret) {
+//     throw new Error('ACCESS_TOKEN_SECRET is not defined');
+//   }
+//   return jwt.sign(
+//     {
+//       _id: this._id,
+//       email: this.email,
+//       username: this.username,
+//       fullName: this.fullName
+//     },
+//     secret,
+//     {
+//       expiresIn: expiry || '1h' // fallback if expiry is not defined
+//     }
+//   );
