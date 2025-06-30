@@ -1,7 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 import jwt, { Secret, SignOptions  } from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { JwtDuration } from "../types/types";
+import { Document } from "mongoose";
+import { JwtDuration, UserDocument } from "../types/types";
 
 const userSchema = new Schema({
   username: {
@@ -64,9 +65,9 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
   return await bcrypt.compare(password,this.password);
 }
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function (this: UserDocument) {
   const secret: Secret = process.env.ACCESS_TOKEN_SECRET as string;
-  const expiry = (process.env.ACCESS_TOKEN_EXPIRY as JwtDuration) ?? '1d';
+  const expiry = (process.env.ACCESS_TOKEN_EXPIRY || '1d')  as JwtDuration;
 
   const payload = {
     _id: this._id,
@@ -80,25 +81,30 @@ userSchema.methods.generateAccessToken = function () {
   };
 
   return jwt.sign(payload, secret, options);
+
+  // return "ACCESS TOKEN"
   
 }
 
 userSchema.methods.generateRefreshToken = function () {
-  const secret: Secret = process.env.REFRESH_TOKEN_SECRET as string;
-  const expiry = (process.env.REFRESH_TOKEN_EXPIRY as JwtDuration) ?? '10d';
+  // const secret: Secret = process.env.REFRESH_TOKEN_SECRET as string;
+  // const expiry = (process.env.REFRESH_TOKEN_EXPIRY as JwtDuration) ?? '10d';
 
-  const payload = {
-    _id: this._id,
-  };
+  // const payload = {
+  //   _id: this._id,
+  // };
 
-  const options: SignOptions = {
-    expiresIn: expiry,
-  };
+  // const options: SignOptions = {
+  //   expiresIn: expiry,
+  // };
 
-  return jwt.sign(payload, secret, options);
+  // return jwt.sign(payload, secret, options);
+  return "REFRESH TOKEN"
 }
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model<UserDocument>("User", userSchema);
+
+
 
 // const secret = process.env.ACCESS_TOKEN_SECRET;
 //   const expiry = process.env.ACCESS_TOKEN_EXPIRY;

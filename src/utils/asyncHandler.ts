@@ -10,14 +10,14 @@ const asyncHandler = (requestHandler: RequestHandler) => {
       // }
 
       // Otherwise, wrap it into a standardized ApiError
-      const apiError = new ApiError(
-        error.statusCode || 500,
-        error.message || "Internal Server Error",
-        // [error?.details || error],
-        error.stack
-      );
-      return res.json(apiError)
-      // return next(error)
+      // const apiError = new ApiError(
+      //   error.statusCode || 500,
+      //   error.message || "Internal Server Error",
+      //   // [error?.details || error],
+      //   error.stack
+      // );
+      // return res.json(apiError)
+      return next(error)
     });
   }
 }
