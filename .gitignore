@@ -118,3 +118,15 @@ dist
 .pnp.*
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
+
+
+PORT=5000
+MONGODB_URI=mongodb+srv://bilalalgoace:q90SJtl1ZAkyFg3X@cluster0.wrbxdbs.mongodb.net/backend-practice?retryWrites=true&w=majority&appName=Cluster0
+CORS_ORIGIN=*
+ACCESS_TOKEN_SECRET=Pba1zD6rdUk5TM40DSLg9s12wLBEk9AEikGdzr9VigcLFB15Q1e63mmVSZvlGuIw
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_SECRET=ukroHQiO4XsAOc2liwrYWq6AShWJVjg6jW7SOYDWFxqy1l884G6eAyt3r3xCdHyE
+REFRESH_TOKEN_EXPIRY=10d
+CLOUDINARY_CLOUD_NAME=demp6raz0
+CLOUDINARY_API_KEY=326376496346138
+CLOUDINARY_API_SECRET=7BJdOezXR48NaI-U5NgCZ6llCBc
