@@ -1,10 +1,15 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Model, Schema } from "mongoose";
 import jwt, { Secret, SignOptions  } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { Document } from "mongoose";
-import { JwtDuration, UserDocument } from "../types/types";
+import { IUser, JwtDuration } from "../types/types";
 
-const userSchema = new Schema({
+
+interface IUserDocument extends IUser, Document {}
+interface IUserModel extends Model<IUserDocument> {}
+
+
+const userSchema = new Schema<IUserDocument>({
   username: {
     type: String,
     required: true,
@@ -65,9 +70,9 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
   return await bcrypt.compare(password,this.password);
 }
 
-userSchema.methods.generateAccessToken = function (this: UserDocument) {
+userSchema.methods.generateAccessToken = function () {
   const secret: Secret = process.env.ACCESS_TOKEN_SECRET as string;
-  const expiry = (process.env.ACCESS_TOKEN_EXPIRY || '1d')  as JwtDuration;
+  const expiry = (process.env.ACCESS_TOKEN_EXPIRY ?? '1d')  as JwtDuration;
 
   const payload = {
     _id: this._id,
@@ -81,30 +86,25 @@ userSchema.methods.generateAccessToken = function (this: UserDocument) {
   };
 
   return jwt.sign(payload, secret, options);
-
-  // return "ACCESS TOKEN"
   
 }
 
 userSchema.methods.generateRefreshToken = function () {
-  // const secret: Secret = process.env.REFRESH_TOKEN_SECRET as string;
-  // const expiry = (process.env.REFRESH_TOKEN_EXPIRY as JwtDuration) ?? '10d';
+  const secret: Secret = process.env.REFRESH_TOKEN_SECRET as string;
+  const expiry = (process.env.REFRESH_TOKEN_EXPIRY ?? '10d')  as JwtDuration;
 
-  // const payload = {
-  //   _id: this._id,
-  // };
+  const payload = {
+    _id: this._id,
+  };
 
-  // const options: SignOptions = {
-  //   expiresIn: expiry,
-  // };
+  const options: SignOptions = {
+    expiresIn: expiry,
+  };
 
-  // return jwt.sign(payload, secret, options);
-  return "REFRESH TOKEN"
+  return jwt.sign(payload, secret, options);
 }
 
-export const User = mongoose.model<UserDocument>("User", userSchema);
-
-
+export const User = mongoose.model<IUserDocument, IUserModel>("User", userSchema);
 
 // const secret = process.env.ACCESS_TOKEN_SECRET;
 //   const expiry = process.env.ACCESS_TOKEN_EXPIRY;

@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import { v2 as cloudinary } from 'cloudinary';
 import fs from "fs";
 
@@ -5,10 +7,11 @@ import fs from "fs";
   
   // Configuration
 cloudinary.config({ 
-  cloud_name: "demp6raz0",
-  api_key: "326376496346138",
-  api_secret: "7BJdOezXR48NaI-U5NgCZ6llCBc", // Click 'View API Keys' above to copy your API secret
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
+
     // Upload an image
     //  const uploadResult = await cloudinary.uploader
     //    .upload(
@@ -40,12 +43,6 @@ cloudinary.config({
     
     // console.log(autoCropUrl);    
 })();
-
-console.log("Cloudinary ENV:", {
-  cloud_name: "demp6raz0",
-  api_key: "326376496346138",
-  api_secret: "7BJdOezXR48NaI-U5NgCZ6llCBc",
-});
 
 const uploadOnCloudinary = async (localFilePath: string) => {
   try {

@@ -13,9 +13,9 @@ class ApiError extends Error {
     super();
 
     this.statusCode = statusCode;
-    this.data = null;
-    this.message = message;
     this.success = false;
+    this.message = message;
+    this.data = null;
     // this.errors = errors;
 
     // Set the stack trace if provided or capture it automatically

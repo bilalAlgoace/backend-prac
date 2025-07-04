@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { CustomRequestFiles } from "../types/types.js";
+import { CustomRequestFiles, IUser } from "../types/types.js";
 
 
 const generateAccessAndRefreshToken = async (userId: any) => {
@@ -15,26 +15,21 @@ const generateAccessAndRefreshToken = async (userId: any) => {
       throw new ApiError(404, "User not found");
     }
 
+    console.log("Calling generateAccessToken...");
     const accessToken = user.generateAccessToken();
+  
+    console.log("Calling generateRefreshToken...");
     const refreshToken = user.generateRefreshToken();
 
     // const accessToken = "123456789"
     // const refreshToken = "987654321"
-
-    // user.refreshToken = refreshToken;
+    user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
 
-    return { accessToken, refreshToken };
+    return { refreshToken, accessToken };
 
   } catch (error) {
-    console.error("Token Generation Error:", error);
-
-    // If error is an instance of Error, show full stack trace
-    // if (error instanceof Error) {
-    //   console.error("Stack Trace:", error.stack);
-    // }
-  
-    // throw new ApiError(500, "Something went wrong while generating Access and Refresh token");
+    throw new ApiError(500, "Something went wrong while generating Access and Refresh token");
   }
 }
 
@@ -116,14 +111,14 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
   // send cookie
 
   const { email, username, password } = req.body;
-
-  if (!username && !email) {
+  console.log(email);
+  if (!(username || email)) {
     throw new ApiError(400, "usernmae or email is required");
   }
 
   const user = await User.findOne({
     $or: [{ email }, { username }]
-  });
+  })
 
   if (!user) {
     throw new ApiError(404, "User does not exist");
@@ -135,7 +130,13 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+  const tokens = await generateAccessAndRefreshToken(user._id);
+
+  if (!tokens || !tokens.accessToken || !tokens.refreshToken) {
+    throw new ApiError(500, "Failed to generate authentication tokens");
+  }
+
+  const { accessToken, refreshToken } = tokens;
 
   const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
@@ -155,10 +156,11 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 
 // const logoutUser = asyncHandler(async (req: Request, res: Response) => {
-//   await User.findByIdAndUpdate(req.user?._id,
+//   await User.findByIdAndUpdate(
+//     req.user?._id,
 //     {
-//       $set: {
-//         refreshToken: undefined
+//       $unset: {
+//         refreshToken: 1 // this removes the field from document
 //       }
 //     },
 //     {
@@ -176,6 +178,6 @@ const loginUser = asyncHandler(async (req: Request, res: Response) => {
 
 export {
   registerUser,
-  // loginUser,
+  loginUser,
   // logoutUser
 }
