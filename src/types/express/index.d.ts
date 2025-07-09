@@ -10,6 +10,8 @@ declare global {
   }
 }
 
+export {}; // Marks this file as a module
+
 // import { UserDocument } from "../types";
 
 
